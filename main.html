@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do List</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="box">
+            <h1>These are your assignments.</h1>
+            <div id="tasks"></div>
+
+            <a href="create_task.html"><button> Create Task</button></a>
+            <button onclick="logout()">Log Out</button>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookie = {};
+            document.cookie.split(';').forEach(function(el) {
+                let split = el.split('=');
+                cookie[split[0].trim()] = split.slice(1).join("=");
+            });
+            return cookie[name] || "";
+        }
+
+        function logout() {
+            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.replace("index.html");
+        }
+
+        console.log("cookie", getCookie("username"));
+
+        axios.get("http://127.0.0.1:8000/get_tasks/?name=" + getCookie("username"))
+        .then(function (response) {
+            console.log(response.data.tasks);
+
+            const container = document.getElementById("tasks");
+
+            if (response.data.tasks.length === 0) {
+                container.innerHTML = "<p>No tasks found.</p>";
+                return;
+            }
+
+            response.data.tasks.forEach(task => {
+                let content = `<p><strong>Task:</strong> ${task.task} <br>
+                               <strong>Deadline:</strong> ${task.deadline}</p><hr>`;
+                container.innerHTML += content;
+            });
+        })
+        .catch(function (error) {
+            console.log(error.response ? error.response.data : error.message);
+            document.getElementById("tasks").innerHTML = "<p>Error loading tasks.</p>";
+        });
+    </script>
+</body>
+</html>

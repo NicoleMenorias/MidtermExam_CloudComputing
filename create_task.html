@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do List</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="box">
+            <h1>New Task</h1>
+
+            <form id="myForm">
+                <label for="task">Task:</label>
+                <input type="text" id="task" name="task" required><br>
+
+                <label for="deadline">Deadline:</label>
+                <input type="text" id="deadline" name="deadline" required><br>
+
+                <button type="submit">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookie = {};
+            document.cookie.split(';').forEach(function(el) {
+                let split = el.split('=');
+                cookie[split[0].trim()] = split.slice(1).join("=");
+            });
+            return cookie[name] || "";
+        }
+
+        console.log('Cookie:', getCookie('username'));
+
+        // Attach event listener to the form submit event
+        document.getElementById('myForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent page reload
+
+            const username = getCookie('username');
+            if (!username) {
+                alert("User not found. Please log in first.");
+                return;
+            }
+
+            const data = {
+                task: document.getElementById('task').value.trim(),
+                deadline: document.getElementById('deadline').value.trim(),
+                user: username
+            };
+
+            axios.post('http://127.0.0.1:8000/create_task/', data)
+            .then(function (response) {
+                console.log(response.data);
+                alert("Task created successfully!");
+                document.getElementById("myForm").reset(); // Clear form
+            })
+            .catch(function (error) {
+                console.log(error.response ? error.response.data : error.message);
+                alert("Failed to create task. Please try again.");
+            });
+        });
+    </script>
+
+</body>
+</html>
